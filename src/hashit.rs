@@ -1,7 +1,7 @@
 use crate::error::Result;
-use crate::file::HtFile;
+use crate::file::{FileHash, HtFile};
 use crate::open_mode::OpenMode;
-use crate::traits::OpenMut;
+use crate::traits::*;
 use crate::utils::*;
 
 use std::io::prelude::*;
@@ -10,25 +10,27 @@ use std::path::Path;
 /// Hashit is constructed with a
 /// Hashit exists as a struct to facilitate testing.
 #[derive(Debug)]
-pub struct Hashit<R> {
+pub struct Hashit<R, H> {
     inner: R,
+    hasher: H,
 }
 
-impl Default for Hashit<HtFile> {
+impl Default for Hashit<HtFile, FileHash> {
     fn default() -> Self {
-        Hashit::<HtFile> {
+        Hashit::<HtFile, FileHash> {
             inner: HtFile::new(),
+            hasher: FileHash {},
         }
     }
 }
 
-impl Hashit<HtFile> {
+impl Hashit<HtFile, FileHash> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<'a, R: OpenMut> Hashit<R> {
+impl<'a, R: OpenMut, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
     /// Given a list of inputs, compare their collective hash to the value stored
     /// in a file to determine if any of the files has changed since the last
     /// time this function was run.
@@ -45,7 +47,12 @@ impl<'a, R: OpenMut> Hashit<R> {
         IP: AsRef<Path>,
         OP: AsRef<Path>,
     {
-        let hash = calc_hash(inputs)?;
+        let inputs2 = inputs
+            .iter()
+            .map(|x| x.as_ref().to_string_lossy())
+            .collect::<Vec<_>>();
+        //let hash = calc_hash(inputs)?;
+        let hash = (self.hasher).calc_hash(&inputs2[..])?;
         let mut buffer = Vec::<u8>::new();
         let output_str = output.as_ref().to_string_lossy();
         {
@@ -68,3 +75,7 @@ impl<'a, R: OpenMut> Hashit<R> {
         Ok(differs)
     }
 }
+
+#[cfg(test)]
+#[path = "./unit_tests/hashit_test.rs"]
+mod tests;

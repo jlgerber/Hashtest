@@ -34,3 +34,9 @@ pub trait OpenMut: Open {
     where
         I: AsRef<str>;
 }
+
+pub trait CalcHash {
+    fn calc_hash<R>(&self, inputs: &[R]) -> HResult<Vec<u8>>
+    where
+        R: AsRef<str>;
+}

@@ -1,4 +1,6 @@
 //! implement
+use crate::traits::CalcHash;
+use crate::utils::{blake_hash, read_file};
 use crate::HashitError;
 use crate::OpenMode;
 use crate::Result as HResult;
@@ -56,5 +58,22 @@ impl OpenMut for HtString {
         I: AsRef<str>,
     {
         Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub struct StringHash {}
+impl CalcHash for StringHash {
+    fn calc_hash<P>(&self, files: &[P]) -> HResult<Vec<u8>>
+    where
+        P: AsRef<str>,
+    {
+        let mut resvec = Vec::new();
+
+        for f in files {
+            let result = blake_hash(f.as_ref().as_bytes());
+            resvec.extend(result);
+        }
+        Ok(resvec)
     }
 }

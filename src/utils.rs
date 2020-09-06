@@ -50,3 +50,18 @@ where
     }
     Ok(resvec)
 }
+// Calculate a unique hash given a list of Paths
+pub(crate) fn calc_hash2<P>(files: &[P]) -> Result<Vec<u8>>
+where
+    P: AsRef<str>,
+{
+    let mut resvec = Vec::new();
+
+    for f in files {
+        let file = f.as_ref();
+        let file_contents = read_file(file)?;
+        let result = blake_hash(&file_contents);
+        resvec.extend(result);
+    }
+    Ok(resvec)
+}
