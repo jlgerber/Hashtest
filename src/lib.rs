@@ -44,10 +44,10 @@
 pub mod error;
 pub use error::Result;
 pub use error::*;
-use std::fs;
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::Path;
+// use std::fs;
+// use std::fs::File;
+// use std::io::prelude::*;
+// use std::path::Path;
 
 pub mod traits;
 pub use traits::{Open, OpenMut};
@@ -59,14 +59,14 @@ pub mod file;
 pub use file::HtFile;
 //
 pub mod utils;
-use utils::*;
+//use utils::*;
 //
 pub mod hashit;
 pub use hashit::*;
 //
 pub mod string;
 pub use string::*;
-
+/*
 /// Given a list of inputs, compare their collective hash to the value stored
 /// in a file to determine if any of the files has changed since the last
 /// time this function was run.
@@ -132,3 +132,4 @@ where
 //     }
 //     Ok(differs)
 // }
+*/
