@@ -1,5 +1,8 @@
 //! implements the traits required by Hashit in order to test
 //! without writing to disk.
+//!
+//! NB: This module only gets compiled into the library for tests.
+//!
 use crate::traits::{CalcHash, FetchCachedHash, Open, OpenMut};
 use crate::utils::blake_hash;
 use crate::HashitError;
@@ -9,20 +12,33 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::io;
 use std::sync::Mutex;
+
+// Since we only compile this for testing (via #[cfg(test)])
+// we dont really care that the ResourceHashMap is using an
+// owned String. It makes the implementation simpler, and it
+// only affects testing
 type ResourceHashMap = Mutex<HashMap<String, Vec<u8>>>;
+
 lazy_static! {
     static ref RESOURCES: ResourceHashMap = {
         let map = Mutex::new(HashMap::new());
         map
     };
 }
-#[derive(Debug)]
-pub struct ResourceReaderWriter {
-    key: String,
-}
+/// Used by testing to completely reset the resources hashmap. This should be
+/// executed before each test.
 pub fn reset_resources() {
     let mut resources = RESOURCES.lock().unwrap();
     resources.clear();
+}
+
+/// The ResourceReaderWriter owns the key, which arguably forces us to
+/// allocate more than we would like, but since this is only for testing
+/// purposes, it seems silly to spend any time on optimizations that would
+/// make the implementation more complicated, and eat up developer time.
+#[derive(Debug)]
+pub struct ResourceReaderWriter {
+    key: String,
 }
 
 impl io::Read for ResourceReaderWriter {

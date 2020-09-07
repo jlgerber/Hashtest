@@ -12,5 +12,4 @@ thiserror = "1.0.20"
 lazy_static = "1.4.0"
 
 [dev-dependencies]
-ctor = "0.1.15"
 serial_test = "0.5.0"

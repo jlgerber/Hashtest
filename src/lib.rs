@@ -44,10 +44,6 @@
 pub mod error;
 pub use error::Result;
 pub use error::*;
-// use std::fs;
-// use std::fs::File;
-// use std::io::prelude::*;
-// use std::path::Path;
 
 pub mod traits;
 pub use traits::{Open, OpenMut};
@@ -63,73 +59,8 @@ pub mod utils;
 //
 pub mod hashit;
 pub use hashit::*;
-//
-pub mod string;
-pub use string::*;
-/*
-/// Given a list of inputs, compare their collective hash to the value stored
-/// in a file to determine if any of the files has changed since the last
-/// time this function was run.
-///
-/// - If the output file does not exist, we assume that this is the first time
-///   that this function has been run. We create the file, store the calculated
-///   hash from inputs, and return true (the input(s) have changed)
-/// - If the inputs' hash differs from the stored hash, we replace the stored hash
-///   with the new hash, and return true (the file has changed)
-/// - If the inputs' hash matches the stored hash, we return false (the input(s)
-///   have not changed)
-pub fn has_changed<IP, P>(inputs: &[IP], output_file: P) -> Result<bool>
-where
-    IP: AsRef<Path>,
-    P: AsRef<Path>,
-{
-    let hash = calc_hash(inputs)?;
-    let output_file = output_file.as_ref();
-    if !output_file.exists() {
-        // create missing directory if it doesnt exist
-        let output_path = output_file
-            .parent()
-            .ok_or_else(|| HashitError::MissingDir(output_file.to_string_lossy().into_owned()))?;
-        fs::create_dir_all(output_path)?;
-        // write hash to file
-        let mut file = File::create(&output_file)?;
-        file.write_all(&hash)?;
-        // has the input file changed? Well if there is no output path
-        // then automatically that would be true
-        return Ok(true);
-    }
-    // read contents and determine if hashes are equal
-    let mut buffer = Vec::<u8>::new();
-    {
-        // create scope. file will be dropped
-        let mut file = File::open(output_file)?;
-        file.read_to_end(&mut buffer)?;
-    }
-    let differs = hash != &buffer[..];
-    if differs {
-        let mut file = fs::OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(output_file)?;
-        file.write_all(&hash)?;
-    }
-    Ok(differs)
-}
 
-// fn _has_changed<IP, OP>(inputs: &[IP], mut output: OP) -> Result<bool>
-// where
-//     IP: AsRef<Path>,
-//     OP: Read + Write + Seek,
-// {
-//     let hash = calc_hash(inputs)?;
-//     let mut buffer = Vec::<u8>::new();
-//     output.read_to_end(&mut buffer)?;
-//     let differs = hash != &buffer[..];
-//     if differs {
-//         output.seek(SeekFrom::Start(0))?;
-//         output.write_all(&hash)?;
-//     }
-//     Ok(differs)
-// }
-*/
+#[cfg(test)]
+pub mod string;
+#[cfg(test)]
+pub use string::*;
