@@ -34,6 +34,9 @@ pub trait OpenMut: Open {
     where
         I: AsRef<str>;
 }
+pub trait FetchCachedHash: Open {
+    fn fetch_cached_hash(&self, input: &str) -> HResult<Vec<u8>>;
+}
 
 pub trait CalcHash {
     fn calc_hash<R>(&self, inputs: &[R]) -> HResult<Vec<u8>>
