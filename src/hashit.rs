@@ -2,10 +2,8 @@ use crate::error::Result;
 use crate::file::{FileHash, HtFile};
 use crate::open_mode::OpenMode;
 use crate::traits::*;
-use crate::utils::*;
 
 use std::io::prelude::*;
-
 use std::path::Path;
 /// Hashit is constructed with a
 /// Hashit exists as a struct to facilitate testing.
@@ -15,6 +13,9 @@ pub struct Hashit<R, H> {
     hasher: H,
 }
 
+/// Simplify default construction for production usage
+/// We could go farther and mark as #[cfg(test)] vs non and
+/// set up a default impl in both cases.
 impl Default for Hashit<HtFile, FileHash> {
     fn default() -> Self {
         Hashit::<HtFile, FileHash> {
@@ -30,7 +31,7 @@ impl Hashit<HtFile, FileHash> {
     }
 }
 
-impl<'a, R: OpenMut, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
+impl<'a, R: OpenMut + FetchCachedHash, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
     /// Given a list of inputs, compare their collective hash to the value stored
     /// in a file to determine if any of the files has changed since the last
     /// time this function was run.
@@ -47,27 +48,30 @@ impl<'a, R: OpenMut, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
         IP: AsRef<Path>,
         OP: AsRef<Path>,
     {
+        // this is unfortunate. Because I designed has_changed to work with paths
+        // I am stuck converting from a path to a string. I should probably
+        // rething this and make has_changed take an Asref<str> or a &str
         let inputs2 = inputs
             .iter()
             .map(|x| x.as_ref().to_string_lossy())
             .collect::<Vec<_>>();
-        //let hash = calc_hash(inputs)?;
+
         // Here we are calculating the hash of each of the inputs and
         // returning an accumulated value.
         let hash = (self.hasher).calc_hash(&inputs2[..])?;
+        // now we are going to read the value of the hash that has previously been
+        // cached.
         let mut buffer = Vec::<u8>::new();
         let output_str = output.as_ref().to_string_lossy();
         {
-            let inner = &mut self.inner;
-            let exists = inner.exists(output_str.as_ref());
+            let exists = self.inner.exists(output_str.as_ref());
             if !exists {
-                inner.create(output_str.as_ref())?;
+                self.inner.create(output_str.as_ref())?;
             }
             // Here we are reading the buffer directly and expecting the value to
             // be a hash already
-            let mut reader = inner.open(output_str.as_ref())?;
-            reader.read_to_end(&mut buffer)?;
-            drop(reader);
+
+            buffer = self.inner.fetch_cached_hash(output_str.as_ref())?;
         }
         let differs = hash != &buffer[..];
         if differs {
