@@ -52,6 +52,8 @@ impl<'a, R: OpenMut, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
             .map(|x| x.as_ref().to_string_lossy())
             .collect::<Vec<_>>();
         //let hash = calc_hash(inputs)?;
+        // Here we are calculating the hash of each of the inputs and
+        // returning an accumulated value.
         let hash = (self.hasher).calc_hash(&inputs2[..])?;
         let mut buffer = Vec::<u8>::new();
         let output_str = output.as_ref().to_string_lossy();
@@ -61,6 +63,8 @@ impl<'a, R: OpenMut, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
             if !exists {
                 inner.create(output_str.as_ref())?;
             }
+            // Here we are reading the buffer directly and expecting the value to
+            // be a hash already
             let mut reader = inner.open(output_str.as_ref())?;
             reader.read_to_end(&mut buffer)?;
             drop(reader);
