@@ -1,10 +1,11 @@
-//! implement
+//! implements the traits required by Hashit in order to test
+//! without writing to disk.
 use crate::traits::{CalcHash, FetchCachedHash, Open, OpenMut};
-use crate::utils::{blake_hash, read_file};
+use crate::utils::blake_hash;
 use crate::HashitError;
 use crate::OpenMode;
 use crate::Result as HResult;
-use std::io::prelude::*;
+
 use std::io::Cursor;
 
 #[derive(Debug)]
@@ -63,7 +64,9 @@ impl OpenMut for HtString {
 }
 
 impl FetchCachedHash for HtString {
-    fn fetch_cached_hash(&self, input: &str) -> HResult<Vec<u8>> {
+    fn fetch_cached_hash(&mut self, input: &str) -> HResult<Vec<u8>> {
+        // we dont have anything to open. The "cached hash" is simply the
+        // hash of the input
         Ok(blake_hash(input.as_bytes()))
     }
 }
