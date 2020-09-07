@@ -1,11 +1,12 @@
 //! implement
-use crate::traits::CalcHash;
+use crate::traits::{CalcHash, FetchCachedHash, Open, OpenMut};
 use crate::utils::{blake_hash, read_file};
 use crate::HashitError;
 use crate::OpenMode;
 use crate::Result as HResult;
-use crate::{Open, OpenMut};
+use std::io::prelude::*;
 use std::io::Cursor;
+
 #[derive(Debug)]
 pub struct HtString {}
 
@@ -58,6 +59,12 @@ impl OpenMut for HtString {
         I: AsRef<str>,
     {
         Ok(())
+    }
+}
+
+impl FetchCachedHash for HtString {
+    fn fetch_cached_hash(&self, input: &str) -> HResult<Vec<u8>> {
+        Ok(blake_hash(input.as_bytes()))
     }
 }
 
