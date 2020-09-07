@@ -17,24 +17,24 @@ pub trait Open {
         I: AsRef<str>;
 }
 
-pub trait OpenMut: Open {
+pub trait OpenMut<'a>: Open {
     type OW: Read + Write;
     //type E: std::error::Error;
 
     /// Open the output for reading or writing, depending upon the OpenMode
     fn open_mut<I>(
-        &mut self,
+        &'a mut self,
         input: I,
         mode: OpenMode,
     ) -> std::result::Result<Self::OW, HashitError>
     where
         I: AsRef<str>;
 
-    fn create<I>(&mut self, input: I) -> HResult<()>
+    fn create<I>(&'a mut self, input: I) -> HResult<()>
     where
         I: AsRef<str>;
 }
-pub trait FetchCachedHash: OpenMut {
+pub trait FetchCachedHash<'a>: OpenMut<'a> {
     fn fetch_cached_hash(&mut self, input: &str) -> HResult<Vec<u8>>;
 }
 

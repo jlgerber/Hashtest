@@ -50,10 +50,10 @@ impl Open for HtFile {
     }
 }
 
-impl OpenMut for HtFile {
+impl<'a> OpenMut<'a> for HtFile {
     type OW = fs::File;
     fn open_mut<I>(
-        &mut self,
+        &'a mut self,
         input: I,
         mode: OpenMode,
     ) -> std::result::Result<Self::OW, HashitError>
@@ -96,7 +96,7 @@ impl OpenMut for HtFile {
         }
     }
 
-    fn create<I>(&mut self, path: I) -> HResult<()>
+    fn create<I>(&'a mut self, path: I) -> HResult<()>
     where
         I: AsRef<str>,
     {
@@ -109,7 +109,7 @@ impl OpenMut for HtFile {
     }
 }
 
-impl FetchCachedHash for HtFile {
+impl<'a> FetchCachedHash<'a> for HtFile {
     fn fetch_cached_hash(&mut self, input: &str) -> HResult<Vec<u8>> {
         let exists = self.exists(input);
         if !exists {

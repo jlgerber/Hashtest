@@ -31,7 +31,7 @@ impl Hashit<HtFile, FileHash> {
     }
 }
 
-impl<'a, R: OpenMut + FetchCachedHash, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
+impl<'a, R: OpenMut<'a> + FetchCachedHash<'a>, H: CalcHash + std::fmt::Debug> Hashit<R, H> {
     /// Given a list of inputs, compare their collective hash to the value stored
     /// in a file to determine if any of the files has changed since the last
     /// time this function was run.
