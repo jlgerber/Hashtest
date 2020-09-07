@@ -59,20 +59,12 @@ impl<'a, R: OpenMut + FetchCachedHash, H: CalcHash + std::fmt::Debug> Hashit<R, 
         // Here we are calculating the hash of each of the inputs and
         // returning an accumulated value.
         let hash = (self.hasher).calc_hash(&inputs2[..])?;
-        // now we are going to read the value of the hash that has previously been
-        // cached.
-        let mut buffer = Vec::<u8>::new();
+        // now we are going to read the value of the hash that has previously been cached.
         let output_str = output.as_ref().to_string_lossy();
-        {
-            let exists = self.inner.exists(output_str.as_ref());
-            if !exists {
-                self.inner.create(output_str.as_ref())?;
-            }
-            // Here we are reading the buffer directly and expecting the value to
-            // be a hash already
 
-            buffer = self.inner.fetch_cached_hash(output_str.as_ref())?;
-        }
+        // fetch_cached_hash will create the output if it does not exist, returning an
+        // empty buffer in that case.
+        let buffer = self.inner.fetch_cached_hash(output_str.as_ref())?;
         let differs = hash != &buffer[..];
         if differs {
             let mut writer = self
