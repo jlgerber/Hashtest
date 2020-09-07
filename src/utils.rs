@@ -3,7 +3,7 @@ use crate::error::Result;
 use blake2::{Blake2b, Digest};
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::Path;
+//use std::path::Path;
 use std::path::PathBuf;
 
 /// Given a slice of u8, calculate a hash using the Blake2 algorithm
@@ -35,33 +35,33 @@ where
     Ok(buffer)
 }
 
-// Calculate a unique hash given a list of Paths
-pub(crate) fn calc_hash<P>(files: &[P]) -> Result<Vec<u8>>
-where
-    P: AsRef<Path>,
-{
-    let mut resvec = Vec::new();
+// // Calculate a unique hash given a list of Paths
+// pub(crate) fn calc_hash<P>(files: &[P]) -> Result<Vec<u8>>
+// where
+//     P: AsRef<Path>,
+// {
+//     let mut resvec = Vec::new();
 
-    for f in files {
-        let file = f.as_ref();
-        let file_contents = read_file(file)?;
-        let result = blake_hash(&file_contents);
-        resvec.extend(result);
-    }
-    Ok(resvec)
-}
-// Calculate a unique hash given a list of Paths
-pub(crate) fn calc_hash2<P>(files: &[P]) -> Result<Vec<u8>>
-where
-    P: AsRef<str>,
-{
-    let mut resvec = Vec::new();
+//     for f in files {
+//         let file = f.as_ref();
+//         let file_contents = read_file(file)?;
+//         let result = blake_hash(&file_contents);
+//         resvec.extend(result);
+//     }
+//     Ok(resvec)
+// }
+// // Calculate a unique hash given a list of Paths
+// pub(crate) fn calc_hash2<P>(files: &[P]) -> Result<Vec<u8>>
+// where
+//     P: AsRef<str>,
+// {
+//     let mut resvec = Vec::new();
 
-    for f in files {
-        let file = f.as_ref();
-        let file_contents = read_file(file)?;
-        let result = blake_hash(&file_contents);
-        resvec.extend(result);
-    }
-    Ok(resvec)
-}
+//     for f in files {
+//         let file = f.as_ref();
+//         let file_contents = read_file(file)?;
+//         let result = blake_hash(&file_contents);
+//         resvec.extend(result);
+//     }
+//     Ok(resvec)
+// }
