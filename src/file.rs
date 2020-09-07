@@ -1,11 +1,12 @@
-use crate::traits::CalcHash;
+use crate::traits::{CalcHash, FetchCachedHash, Open, OpenMut};
 use crate::utils::{blake_hash, read_file};
 use crate::HashitError;
 use crate::OpenMode;
 use crate::Result as HResult;
-use crate::{Open, OpenMut};
 use std::fs;
+use std::io::prelude::*;
 use std::path::PathBuf;
+
 #[derive(Debug)]
 pub struct HtFile {}
 
@@ -108,8 +109,41 @@ impl OpenMut for HtFile {
     }
 }
 
+impl FetchCachedHash for HtFile {
+    fn fetch_cached_hash(&self, input: &str) -> HResult<Vec<u8>> {
+        let mut buffer = Vec::new();
+        let mut reader = self.open(input)?;
+        reader.read_to_end(&mut buffer)?;
+        Ok(buffer)
+    }
+}
+
+/*
+ fn fetch_cached_hash(&self, input: &str) -> HResult<Vec<u8>> {
+        Err(HashitError::NotImplemented(String::from(
+            "fetch_cached_hash",
+        )))
+    }
+*/
+impl CalcHash for HtFile {
+    fn calc_hash<P>(&self, files: &[P]) -> HResult<Vec<u8>>
+    where
+        P: AsRef<str>,
+    {
+        let mut resvec = Vec::new();
+
+        for f in files {
+            let file = f.as_ref();
+            let file_contents = read_file(file)?;
+            let result = blake_hash(&file_contents);
+            resvec.extend(result);
+        }
+        Ok(resvec)
+    }
+}
 #[derive(Debug)]
 pub struct FileHash {}
+
 impl CalcHash for FileHash {
     fn calc_hash<P>(&self, files: &[P]) -> HResult<Vec<u8>>
     where
