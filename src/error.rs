@@ -16,6 +16,9 @@ pub enum HashitError {
 
     #[error("Key does not exist: '{0}'")]
     MissingKey(String),
+
+    #[error("{0} Not Implemented")]
+    NotImplemented(String),
 }
 
 pub type Result<R> = std::result::Result<R, HashitError>;
