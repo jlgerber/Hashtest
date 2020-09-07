@@ -110,7 +110,11 @@ impl OpenMut for HtFile {
 }
 
 impl FetchCachedHash for HtFile {
-    fn fetch_cached_hash(&self, input: &str) -> HResult<Vec<u8>> {
+    fn fetch_cached_hash(&mut self, input: &str) -> HResult<Vec<u8>> {
+        let exists = self.exists(input);
+        if !exists {
+            self.create(input)?;
+        }
         let mut buffer = Vec::new();
         let mut reader = self.open(input)?;
         reader.read_to_end(&mut buffer)?;
